@@ -1,0 +1,27 @@
+NEUROLOGY REFERRAL -- ADVANCED IMAGING REQUEST
+Synthetic demo data. No real patient. All identifiers are fabricated.
+
+Patient: Marcus Yeboah
+DOB: 1990-01-17
+MRN: MRN-71029
+Payer: BlueCross Select
+Member ID: W1002233
+
+Ordering Provider: Dr. R. Kapoor, Neurology
+
+Clinical Narrative:
+28-year-old male with recurrent tension-type headaches for the past 3
+weeks, no red-flag features. No focal neurological deficit on exam. No
+papilledema. No prior CT imaging performed. Patient requests MRI due to
+anxiety about the headaches.
+
+Ordering: MRI Brain without contrast (CPT 70551).
+
+Requesting: Coverage determination.
+
+[Note: this scenario is intentionally designed to test that the evaluator
+correctly returns "criteria not met" -- there is no focal deficit, no
+abnormal prior CT, and no red-flag headache features documented. It is also
+useful for testing member_eligibility, since member W1002233 is marked
+terminated in the mock roster -- expect the eligibility check to surface
+that independently of the clinical criteria question.]

@@ -1,0 +1,17 @@
+RADIOLOGY REFERRAL -- ROUTINE SCREENING
+Synthetic demo data. No real patient. All identifiers are fabricated.
+
+Patient: Evelyn Chen
+DOB: 1968-03-22
+MRN: MRN-33410
+Payer: Aetna Commercial
+Member ID: A5591234
+
+Ordering Provider: Dr. S. Okafor, Internal Medicine
+
+Clinical Narrative:
+Routine annual screening mammography, bilateral, including computer-aided
+detection (CPT 77067). Patient is asymptomatic, age 58, average lifetime
+risk, no personal or family history of breast cancer noted.
+
+Requesting: Confirm coverage status and generate clearance code.

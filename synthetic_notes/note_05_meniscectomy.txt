@@ -1,0 +1,21 @@
+ORTHOPEDIC REFERRAL -- ARTHROSCOPIC PROCEDURE
+Synthetic demo data. No real patient. All identifiers are fabricated.
+
+Patient: Priya Nair
+DOB: 1995-08-30
+MRN: MRN-40217
+Payer: Aetna Commercial
+Member ID: A5591234
+
+Referring Provider: Dr. T. Bloom, Sports Medicine
+
+Clinical Narrative:
+29-year-old female with right knee locking and catching sensation for 6
+weeks following a twisting injury during recreational soccer. MRI dated
+2026-07-14 confirms a medial meniscal tear. Patient completed 5 weeks of
+physical therapy and activity modification with persistent mechanical
+symptoms.
+
+Recommendation: Arthroscopy, knee, with meniscectomy (CPT 29881).
+
+Requesting: Extraction of clinical details and prior-auth determination.

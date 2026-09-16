@@ -1,0 +1,24 @@
+SPECIALIST INTAKE NOTE -- ORTHOPEDIC SURGERY REFERRAL
+Synthetic demo data. No real patient. All identifiers are fabricated.
+
+Patient: Jane Doe
+DOB: 1984-05-12
+SSN: 999-12-3456
+MRN: MRN-88421
+Payer: BlueCross Select
+Member ID: W2849102
+
+Referring Provider: Dr. A. Whitfield, Orthopedic Surgery
+
+Clinical Narrative:
+Patient presents with severe right knee osteoarthritis, primary localized
+(ICD-10 M17.11). Severe joint space narrowing confirmed on weight-bearing
+X-rays taken 2026-06-02. Over the past 8 months, patient completed 16 weeks
+of structured physical therapy and two intra-articular corticosteroid
+injections with no lasting relief. Pain is now rated 8/10 on ambulation and
+significantly limits activities of daily living.
+
+Recommendation: Elective right Total Knee Arthroplasty (CPT 27447).
+
+Requesting: Extraction of clinical details, coverage/prior-auth
+determination, and pre-auth package recommendation.

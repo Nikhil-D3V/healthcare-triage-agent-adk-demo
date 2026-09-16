@@ -1,0 +1,42 @@
+# Reference configuration only -- apply via `gcloud model-armor templates
+# create` / Agent Gateway console or Terraform, not by "running" this file.
+
+model_armor_template:
+  template_id: healthcare-triage-sdp-template
+  filters:
+    sdp:                     # Sensitive Data Protection
+      basic_config:
+        filter_enforcement: ENABLED
+      info_types:
+        - US_SOCIAL_SECURITY_NUMBER
+        - DATE_OF_BIRTH
+        - PERSON_NAME          # optional - decide per demo whether to redact names
+      custom_regex_detectors:
+        - name: mrn_pattern
+          regex: "MRN-[0-9]{5}"
+          redact_as: "[REDACTED_MRN]"
+    prompt_injection_and_jailbreak:
+      filter_enforcement: ENABLED
+      confidence_threshold: MEDIUM_AND_ABOVE
+    malicious_uri:
+      filter_enforcement: ENABLED
+
+agent_gateway_route:
+  route_id: clinical-triage-route
+  backend: AGENT_RUNTIME_RESOURCE_NAME   # fill in after deployment.py runs
+  ingress_model_armor_template: healthcare-triage-sdp-template
+  egress_model_armor_template: healthcare-triage-sdp-template
+  authorization_policy:
+    allow_tools:
+      - check_coverage_policy
+      - check_member_eligibility
+    deny_tools:
+      - modify_patient_records     # explicit deny, not just "not granted"
+    identity_binding: clinical-intake-demo-identity   # IAP/IAM identity, NOT a key file
+
+# Known limitation to rehearse around (see docs, verified 2026-09):
+# Model Armor's streaming sanitization for ADK agents only covers the
+# reasoningEngines.streamQuery path for agents actually running on Agent
+# Runtime. Confirm during rehearsal which call path Agent Gateway is
+# actually using for this route, and don't assume unary vs. streaming --
+# verify it in the gateway trace log before the live demo.

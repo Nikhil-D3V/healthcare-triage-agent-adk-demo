@@ -1,0 +1,22 @@
+PRIMARY CARE REFERRAL -- ADVANCED IMAGING REQUEST
+Synthetic demo data. No real patient. All identifiers are fabricated.
+
+Patient: Robert Martinez
+DOB: 1972-11-03
+MRN: MRN-55192
+Payer: (not specified in note)
+
+Ordering Provider: Dr. L. Ferreira, Family Medicine
+
+Clinical Narrative:
+44-year-old male reporting persistent dull aching in the lumbar spine
+region for 4 weeks following yard work. Pain radiates occasionally to the
+upper gluteal region. No motor weakness or bowel/bladder changes reported.
+No prior imaging on file. No documented trial of physical therapy or
+NSAIDs to date.
+
+Ordering: Lumbar Spine MRI without contrast (CPT 72148).
+Provisional diagnosis: Lumbago with sciatica (ICD-10 M54.5).
+
+Requesting: Determine if prior auth is needed and verify documentation
+meets commercial guidelines.

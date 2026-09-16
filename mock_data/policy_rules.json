@@ -1,0 +1,95 @@
+{
+  "_comment": "Synthetic payer policy data for demo purposes only. Shaped so it maps 1:1 onto a future BigQuery table `payer_policy.cpt_rules` (partition key: cpt_code) and `payer_policy.member_eligibility` (partition key: payer_id). No real PHI, payer, or policy content.",
+
+  "cpt_rules": {
+    "27447": {
+      "description": "Total Knee Arthroplasty",
+      "category": "elective_surgical",
+      "prior_auth_required": true,
+      "criteria": [
+        "Radiographic evidence of severe joint space narrowing",
+        "Minimum 6 weeks of structured physical therapy",
+        "Trial of at least one intra-articular corticosteroid injection",
+        "Failure of conservative management to relieve symptoms"
+      ],
+      "summary": "TKA requires documented failure of conservative therapy plus imaging confirmation.",
+      "payer_overrides": {
+        "BC_SELECT": {
+          "criteria": [
+            "Radiographic evidence of severe joint space narrowing",
+            "Minimum 6 weeks of structured physical therapy",
+            "Trial of at least one intra-articular corticosteroid injection"
+          ],
+          "summary": "BlueCross Select waives the 'failure of conservative management' free-text requirement if PT + injection trial are both documented."
+        }
+      }
+    },
+    "72148": {
+      "description": "MRI Lumbar Spine without contrast",
+      "category": "advanced_imaging",
+      "prior_auth_required": true,
+      "criteria": [
+        "Minimum 6 weeks of conservative therapy (PT and/or NSAIDs)",
+        "OR documented progressive neurological deficit"
+      ],
+      "summary": "Advanced imaging requires 6+ weeks conservative therapy unless neuro red flags are present.",
+      "payer_overrides": {}
+    },
+    "77067": {
+      "description": "Screening Mammography, bilateral, including CAD",
+      "category": "preventive_screening",
+      "prior_auth_required": false,
+      "criteria": [
+        "ACA-designated preventive service -- no prior auth criteria apply"
+      ],
+      "summary": "Preventive/ACA-exempt service. Auto-approved regardless of payer.",
+      "payer_overrides": {}
+    },
+    "70551": {
+      "description": "MRI Brain without contrast",
+      "category": "advanced_imaging",
+      "prior_auth_required": true,
+      "criteria": [
+        "Documented focal neurological deficit",
+        "OR abnormal finding on prior CT requiring further characterization",
+        "OR red-flag headache features (sudden onset, worst-of-life, papilledema)"
+      ],
+      "summary": "Brain MRI requires a specific clinical trigger, not routine headache workup.",
+      "payer_overrides": {}
+    },
+    "29881": {
+      "description": "Arthroscopy, knee, with meniscectomy",
+      "category": "elective_surgical",
+      "prior_auth_required": true,
+      "criteria": [
+        "MRI-confirmed meniscal tear",
+        "Minimum 4 weeks of conservative therapy (PT, NSAIDs, or activity modification)",
+        "Mechanical symptoms (locking, catching, or giving way) documented"
+      ],
+      "summary": "Meniscectomy requires imaging confirmation plus a documented conservative-therapy trial.",
+      "payer_overrides": {}
+    }
+  },
+
+  "member_eligibility": {
+    "BC_SELECT:W2849102": {
+      "eligible": true,
+      "plan_name": "BlueCross Select PPO",
+      "effective_date": "2025-01-01",
+      "notes": "Active, in-network benefits apply."
+    },
+    "BC_SELECT:W1002233": {
+      "eligible": false,
+      "plan_name": "BlueCross Select PPO",
+      "effective_date": "2024-06-01",
+      "termination_date": "2026-03-31",
+      "notes": "Coverage terminated -- verify with member before proceeding."
+    },
+    "AETNA_COMM:A5591234": {
+      "eligible": true,
+      "plan_name": "Aetna Commercial PPO",
+      "effective_date": "2025-09-01",
+      "notes": "Active. Referral not required for imaging."
+    }
+  }
+}
