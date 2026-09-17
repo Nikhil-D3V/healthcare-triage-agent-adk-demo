@@ -2,9 +2,8 @@
 Deploy the Clinical Intake Orchestrator to Vertex AI Agent Runtime.
 
 Authentication: this script loads Application Default Credentials from the
-JSON file configured by GOOGLE_APPLICATION_CREDENTIALS. The project-specific
-default path is the credential file used for this demo; set the environment
-variable to another path when running elsewhere.
+JSON file configured by GOOGLE_APPLICATION_CREDENTIALS. Set that variable to
+the ADC file available on the local machine where this script runs.
 
 Usage:
   python deployment/deploy.py
@@ -13,6 +12,8 @@ Usage:
 import os
 import sys
 from pathlib import Path
+
+from google.auth import load_credentials_from_file
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT.parent))
@@ -24,7 +25,6 @@ if env_file.exists():
             name, value = line.split("=", 1)
             os.environ.setdefault(name.strip(), value.strip().strip('"\''))
 
-from google.auth import load_credentials_from_file
 import vertexai
 from vertexai import agent_engines
 
@@ -35,10 +35,7 @@ def main():
     project = os.environ["GOOGLE_CLOUD_PROJECT"]
     location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
     staging_bucket = os.environ["AGENT_ENGINE_STAGING_BUCKET"]
-    credentials_path = os.environ.get(
-        "GOOGLE_APPLICATION_CREDENTIALS",
-        r"C:\Users\nikhi\Desktop\Projects\GE Webinar\d3v-agentspace-demo-4c8cfd668d80.json",
-    )
+    credentials_path = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
     credentials, _ = load_credentials_from_file(
         credentials_path,
         scopes=["https://www.googleapis.com/auth/cloud-platform"],

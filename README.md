@@ -114,22 +114,24 @@ parameterized queries in `tools.py`.
   the backend swap is fully contained in the coverage evaluator's tool
   layer, which is the point of keeping the tool interface stable.
 
-## Model Armor / Agent Gateway integration
-- `security/model_armor_agent_gateway_config.yaml` is a reference config,
-  not a script to execute — apply it via `gcloud model-armor` / the Gateway
-  console / Terraform.
-- The orchestrator's payload handling deliberately uses the standard ADK
-  unary `query` path (see docstring in `clinical_orchestrator/agent.py`) so
-  Model Armor's documented ingress/egress inspection actually covers your
-  traffic. **Verify this in the gateway trace log during rehearsal** —
-  Model Armor's ADK streaming coverage is currently scoped to the
-  `streamQuery` method on agents running on Agent Runtime specifically;
-  confirm your route is using a covered path before you rely on it live.
-- `modify_patient_records` is blocked in two independent places on purpose:
-  the orchestrator is never given the tool at all, AND `blocked_tools.py`
-  raises loudly if anything ever tries to wire it in. Agent Gateway's 403
-  denial is the layer you'll show the audience, but don't make it the
-  *only* layer.
+## Security architecture
+- **Model Armor + Agent Gateway are perimeter content security only:** the
+  gateway route handles ingress/egress concerns such as PHI/SDP redaction and
+  prompt-injection detection. In this sandbox, the
+  `constraints/iam.managed.disableAccessPolicyBinding` organization policy
+  denied Unified Access Policy creation, so Access Authorization is currently
+  **AUDIT_ONLY**, not Enforce. Apply the reference configuration in
+  `security/model_armor_agent_gateway_config.yaml` via `gcloud model-armor`,
+  the Gateway console, or Terraform.
+- **`modify_patient_records` is an ADK application-layer control only:** the
+  orchestrator's system instruction never grants it as a callable tool, and
+  `security/blocked_tools.py` raises `PermissionError` as the code-level
+  enforcement. Agent Gateway cannot see in-process Python function calls, so
+  there is no gateway 403 or gateway log entry for this refusal.
+- Model Armor's ADK streaming sanitization is scoped specifically to the
+  `reasoningEngines.streamQuery` method. Verify which call path this route
+  actually uses in the gateway trace before relying on streaming coverage
+  during a live demo.
 
 ## What to test before rehearsal (see prior review)
 1. Run all 5 synthetic notes through locally and check the extractor's
@@ -139,6 +141,6 @@ parameterized queries in `tools.py`.
    prompt in `synthetic_notes/adversarial_prompts.txt` — check both
    under- and over-redaction (clinical codes must survive; identifiers
    must not).
-3. Confirm the `modify_patient_records` prompt actually produces a gateway
-   403, not just a polite LLM refusal — those are two different failure
-   modes and the demo is specifically about the gateway enforcing it.
+3. Confirm the `modify_patient_records` prompt produces an ADK-level refusal
+  and that the code-level `PermissionError` backstop remains in place. Do
+  not expect a gateway 403 or gateway log entry for this in-process tool.

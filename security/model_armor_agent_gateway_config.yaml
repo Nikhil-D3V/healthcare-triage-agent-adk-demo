@@ -27,16 +27,19 @@ agent_gateway_route:
   ingress_model_armor_template: healthcare-triage-sdp-template
   egress_model_armor_template: healthcare-triage-sdp-template
   authorization_policy:
-    allow_tools:
-      - check_coverage_policy
-      - check_member_eligibility
-    deny_tools:
-      - modify_patient_records     # explicit deny, not just "not granted"
+    # Agent Gateway governs endpoint/IAP-level access. It cannot see or
+    # authorize in-process Python function calls inside a Reasoning Engine
+    # container. Tool-name ACLs belong on separately registered external MCP
+    # servers/APIs, not on this Agent Runtime route.
     identity_binding: clinical-intake-demo-identity   # IAP/IAM identity, NOT a key file
 
+# Sandbox authorization status (verified 2026-09): creating a Unified Access
+# Policy was denied by the constraints/iam.managed.disableAccessPolicyBinding
+# organization policy. Access Authorization is therefore AUDIT_ONLY, not
+# Enforce, until that organization-policy constraint is changed or excepted.
+
 # Known limitation to rehearse around (see docs, verified 2026-09):
-# Model Armor's streaming sanitization for ADK agents only covers the
-# reasoningEngines.streamQuery path for agents actually running on Agent
-# Runtime. Confirm during rehearsal which call path Agent Gateway is
-# actually using for this route, and don't assume unary vs. streaming --
-# verify it in the gateway trace log before the live demo.
+# Model Armor's streaming sanitization for ADK agents is scoped specifically
+# to the reasoningEngines.streamQuery method for agents running on Agent
+# Runtime. Verify which call path this deployment's route actually uses
+# before relying on streaming sanitization live.
