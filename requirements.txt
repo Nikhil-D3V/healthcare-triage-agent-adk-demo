@@ -1,5 +1,7 @@
-google-adk>=1.0.0
-google-cloud-aiplatform>=1.70.0
+google-adk[a2a]==1.29.0
+google-cloud-aiplatform[agent_engines,adk]==1.149.0
+a2a-sdk==0.3.26
+pydantic>=2.0.0,<3.0.0
 google-cloud-bigquery>=3.25.0
 google-cloud-storage>=2.18.0
 cloudpickle>=3.0.0

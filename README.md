@@ -2,6 +2,108 @@
 
 Synthetic demo only. No real PHI anywhere in this repo.
 
+## Workflow
+
+```mermaid
+flowchart TD
+  A[Clinical note from user] --> B[Agent Gateway + Model Armor]
+  B --> C[Clinical Orchestrator]
+  C --> D[Clinical Data Extractor]
+  D --> E[Structured clinical JSON]
+  E --> F[Coverage & Prior-Auth Evaluator]
+  F --> G[Coverage policy lookup]
+  F --> H[Member eligibility lookup]
+  G --> I[Final triage verdict]
+  H --> I
+  I --> C
+  C --> J[Summary, status, missing documents, next action]
+```
+
+## A2A conversion (for Agent Registry / Gateway integration)
+
+The native ADK deployment path registers a `provisioned_reasoning_engine`,
+which does not receive a SPIFFE identity. That prevents Agent Registry and
+Agent Gateway integration from applying the intended Model Armor and gateway
+policies. This conversion exposes the orchestrator through A2A so the Agent
+Runtime deployment can be discovered in Agent Registry and imported into
+Gemini Enterprise through the Agent Gateway-backed flow.
+
+The conversion adds:
+
+- `clinical_orchestrator/agent_card.py`, with the
+  `clinical-intake-prior-auth-triage` Agent Card and a
+  `clinical_intake_triage` skill.
+- `clinical_orchestrator/a2a_server.py`, which exposes the unchanged
+  `root_agent` with ADK's `to_a2a(root_agent, host="localhost", port=8000,
+  agent_card=agent_card)` wrapper for local A2A serving.
+- `clinical_orchestrator/a2a_executor.py`, the Agent Runtime executor bridge
+  used by the codelab-compatible `A2aAgent` deployment adapter.
+
+Run `python deployment/deploy.py` with the existing `.env` ADC settings. The
+script loads `GOOGLE_APPLICATION_CREDENTIALS` from `.env`, and the Google
+Cloud SDK resolves it through the standard ADC environment path; no
+credentials object is passed explicitly to a client. The existing native ADK
+deployment remains available as `deploy_native_agent()` in
+`deployment/deploy.py` for rollback or comparison testing.
+
+The codelab uses `A2aAgent` for Agent Runtime deployment and `to_a2a()` for a
+local Starlette server, so this repository keeps both compatible entry points:
+the shared Agent Card is used by both, while the existing root agent and its
+clinical sub-agent delegation remain unchanged.
+
+### Test locally
+
+Install the pinned dependencies from the repository root:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+For the existing native ADK smoke test, run one synthetic note from the
+`healthcare_triage_agent` directory:
+
+```powershell
+python run_local_demo.py synthetic_notes/note_01_tka_golden_path.txt
+```
+
+To test the A2A surface itself, start the local Starlette server from the
+workspace parent directory so the package imports resolve:
+
+```powershell
+cd ..
+python -m uvicorn healthcare_triage_agent.clinical_orchestrator.a2a_server:a2a_app --host 127.0.0.1 --port 8000
+```
+
+In a second PowerShell window, confirm the Agent Card is discoverable:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/.well-known/agent-card.json
+```
+
+Then send a simple A2A request:
+
+```powershell
+$note = Get-Content -Raw synthetic_notes/note_01_tka_golden_path.txt
+$body = @{
+  jsonrpc = "2.0"
+  id = "local-test-1"
+  method = "message/send"
+  params = @{
+    message = @{
+      messageId = "local-message-1"
+      role = "user"
+      parts = @(@{ kind = "text"; text = "Evaluate this clinical note for prior authorization:`n`n$note" })
+    }
+  }
+} | ConvertTo-Json -Depth 8
+Invoke-RestMethod http://127.0.0.1:8000/ -Method Post -ContentType "application/json" -Body $body
+```
+
+The response should contain an A2A task and the orchestrator's clinical
+determination. The local path does not apply Agent Gateway or Model Armor;
+those policies apply after the A2A agent is deployed and routed through the
+managed gateway.
+
 ## Structure
 ```
 healthcare_triage_agent/

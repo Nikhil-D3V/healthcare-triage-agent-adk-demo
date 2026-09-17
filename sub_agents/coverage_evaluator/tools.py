@@ -181,3 +181,11 @@ def check_member_eligibility(member_id: str, payer_id: str) -> dict:
         return {"member_id": member_id, "payer_id": payer_id, "eligible": False,
                 "message": "Member not found in mock eligibility roster."}
     return {"member_id": member_id, "payer_id": payer_id, **record}
+
+def warmup_tools():
+    """Pre-warm BigQuery client connection during container initialization."""
+    if _backend() == "bigquery":
+        try:
+            _get_bq_client()
+        except Exception:
+            pass
