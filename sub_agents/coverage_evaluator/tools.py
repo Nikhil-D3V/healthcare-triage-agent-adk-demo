@@ -189,3 +189,31 @@ def warmup_tools():
             _get_bq_client()
         except Exception:
             pass
+
+def evaluate_clinical_coverage(
+    cpt_code: str, 
+    payer_id: Optional[str] = None, 
+    member_id: Optional[str] = None
+) -> dict:
+    """Unified lookup executing CPT coverage policy and member eligibility in a single execution.
+    
+    Args:
+        cpt_code: CPT procedure code, e.g., "27447".
+        payer_id: Normalized payer ID, e.g., "BC_SELECT" or "AETNA_COMM".
+        member_id: Member insurance ID, e.g., "W2849102".
+    """
+    policy_result = check_coverage_policy(cpt_code=cpt_code, payer_id=payer_id)
+    
+    eligibility_result = None
+    if member_id and payer_id:
+        eligibility_result = check_member_eligibility(member_id=member_id, payer_id=payer_id)
+    elif member_id and not payer_id:
+        eligibility_result = {
+            "eligible": False, 
+            "message": "Member ID provided without a valid Payer Name."
+        }
+
+    return {
+        "coverage_policy": policy_result,
+        "member_eligibility": eligibility_result
+    }

@@ -8,16 +8,35 @@ Synthetic demo only. No real PHI anywhere in this repo.
 flowchart TD
   A[Clinical note from user] --> B[Agent Gateway + Model Armor]
   B --> C[Clinical Orchestrator]
-  C --> D[Clinical Data Extractor]
-  D --> E[Structured clinical JSON]
-  E --> F[Coverage & Prior-Auth Evaluator]
-  F --> G[Coverage policy lookup]
-  F --> H[Member eligibility lookup]
-  G --> I[Final triage verdict]
-  H --> I
-  I --> C
-  C --> J[Summary, status, missing documents, next action]
+  C --> D[Extract and normalize clinical details]
+  D --> E[evaluate_clinical_coverage]
+  E --> F[Policy lookup + eligibility lookup]
+  F --> G[Final triage verdict]
+  G --> C
+  C --> H[Markdown determination report]
 ```
+
+The current workflow uses `root_agent` directly. It extracts and normalizes
+the note, then makes exactly one model tool call to
+`evaluate_clinical_coverage`. The standalone `clinical_extractor_agent` and
+`coverage_evaluator_agent` modules remain in the repository as specialist
+implementations, but neither is registered as a sub-agent of `root_agent`.
+
+### Single-tool calling contract
+
+The orchestrator exposes one callable tool through `FunctionTool`:
+`evaluate_clinical_coverage(cpt_code, payer_id, member_id)`. The model must
+call it exactly once per note, using the primary CPT code, the normalized
+payer ID, and the member ID when available. Missing values are passed as
+`null`; the orchestrator does not ask follow-up questions.
+
+The tool is the application-layer encapsulation boundary. It deterministically
+calls `check_coverage_policy` and, only when both `member_id` and `payer_id`
+are present, `check_member_eligibility`, then returns both results in one
+structured response. The model synthesizes its report from that response; it
+does not call the inner lookup functions directly or invent policy criteria.
+This keeps the model-facing tool surface stable while allowing the backing
+store to switch between local JSON and BigQuery via `POLICY_DATA_BACKEND`.
 
 ## A2A conversion (for Agent Registry / Gateway integration)
 

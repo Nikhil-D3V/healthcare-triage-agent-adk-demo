@@ -8,8 +8,8 @@ clinical_intake_skill = AgentSkill(
     id="clinical_intake_triage",
     name="Clinical Intake Triage",
     description=(
-        "Parses a clinical intake note, determines CPT/ICD-10 codes, and "
-        "returns a prior-authorization determination."
+        "Parses clinical notes, evaluates payer policy criteria in BigQuery, "
+        "and generates prior-authorization determination reports."
     ),
     tags=["clinical-intake", "prior-authorization", "healthcare"],
     examples=["Evaluate this clinical note for prior authorization."],
@@ -18,17 +18,14 @@ clinical_intake_skill = AgentSkill(
 )
 
 agent_card = create_agent_card(
-    agent_name="clinical-intake-prior-auth-triage",
+    agent_name="Clinical Intake Triage",
     description=(
-        "Multi-agent healthcare intake and prior-authorization triage. "
-        "Parses clinical notes, evaluates coverage criteria, and returns "
-        "a documented determination."
+        "Automated healthcare intake and prior-authorization triage agent. "
+        "Evaluates clinical medical necessity against payer policy rules and member eligibility."
     ),
     skills=[clinical_intake_skill],
     default_input_modes=["text/plain"],
     default_output_modes=["text/plain"],
 )
-# The local to_a2a server advertises this URL; Agent Runtime rewrites it to
-# the managed A2A endpoint during A2aAgent.set_up().
-# Strip out the local _forced_https_setattr monkey-patch
+
 agent_card.url = "https://localhost:8000/"
